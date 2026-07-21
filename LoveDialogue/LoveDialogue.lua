@@ -1,3 +1,4 @@
+---@diagnostic disable: deprecated
 local MODULE_PATH = (...):match('(.-)[^%.]+$')
 
 local ResourceManager = require(MODULE_PATH .. "ResourceManager")
