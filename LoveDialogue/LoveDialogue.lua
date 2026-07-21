@@ -90,6 +90,7 @@ function LoveDialogue.new(config)
         animationTimer = 0,
         effects = {},
         waitTimer = 0,
+        interruptAfter = nil,
         choiceMode = false,
         selectedChoice = 1,
         activeChoices = {}, 
@@ -346,6 +347,7 @@ function LoveDialogue:setDialogueState(line)
 
     self.state.typewriterTimer = 0
     self.state.waitTimer = 0
+    self.state.interruptAfter = line.interruptAfter
     self.state.activeChoices = {}
     if line.choices and #line.choices > 0 then
         for _, c in ipairs(line.choices) do
@@ -404,7 +406,23 @@ end
 function LoveDialogue:handleTypewriter(dt)
     local fullText = self.state.fullText
     if not fullText then return end
-    
+
+    if self.state.interruptAfter then
+        self.state.autoAdvanceTimer = self.state.autoAdvanceTimer + dt
+        if self.state.autoAdvanceTimer >= self.state.interruptAfter then
+            local line = self.state.lines[self.state.currentLineIndex]
+
+            if line.isEnd then
+                self:endDialogue()
+            else
+                self.state.currentLineIndex = self.state.currentLineIndex + 1
+                self:processCurrentLine()
+            end
+
+            return
+        end
+    end
+
     if self.state.displayedText ~= fullText then
         self.state.waitingForInput = false
         self.state.typewriterTimer = self.state.typewriterTimer + dt

@@ -195,8 +195,15 @@ function Parser.parseFile(path, instanceId)
                     if not chars[name] then chars[name] = Character.new(name, instanceId) end
                     local isEnd = text:match('%s*%(end%)$')
                     if isEnd then text = text:gsub('%s*%(end%)$', "") end
+
+                    local interruptAfter = text:match('%[interrupt:([%d%.]+)%]')
+                    if interruptAfter then
+                        interruptAfter = tonumber(interruptAfter)
+                        text = text:gsub('%s*%[interrupt:[%d%.]+%]%s*$', '')
+                    end
+
                     local pText, eff = parseEffects(text)
-                    table.insert(lines, { type = "dialogue", character = name, expression = expr, text = pText, rawText = text, effects = eff, isEnd = isEnd ~= nil, choices = {} })
+                    table.insert(lines, { type = "dialogue", character = name, expression = expr, text = pText, rawText = text, effects = eff, isEnd = isEnd ~= nil, interruptAfter = interruptAfter, choices = {} })
                 end
             end
         end
